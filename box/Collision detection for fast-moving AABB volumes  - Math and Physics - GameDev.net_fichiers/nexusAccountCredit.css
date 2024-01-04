@@ -1,0 +1,34 @@
+.textShort { text-align: left; }
+      
+#account_credit_menucontent.ipsHeaderMenu {
+    width: 300px;
+}
+
+#account_credit {
+    background: url(http://public.gamedev.net//public/style_images/master/icon_accountcredit.png ) no-repeat top;
+    vertical-align: middle;
+    width: 18px;
+    height: 15px;
+    padding: 11px 24px 8px 12px;
+    position: relative;
+}
+
+#account_credit_menucontent a.configure:hover {
+color: #328586 !important;
+}
+
+#account_credit_menucontent a.configure {
+color: #225985 !important;
+text-decoration: none;
+}
+
+#account_credit:hover { background-color: #323232; }
+
+#account_credit.menu_active {
+    background-position: bottom;
+    background-color: #fff;
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    border-radius: 3px 3px 0 0;
+}

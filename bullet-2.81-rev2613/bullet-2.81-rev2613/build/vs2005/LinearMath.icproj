@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="LinearMath"
+	ProjectGUID="{B603AF91-1DD9-4AE2-BBD7-9138D09D4B96}"
+	VCNestedProjectGUID="{27CA499C-B19E-5B4E-A62C-7C89CBB5111B}"
+	VCNestedProjectFileName="LinearMath.vcproj">
+	<Configurations/>
+	<Files/>
+</VisualStudioProject>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="raymarching"
+	ProjectGUID="{B6CD7924-BB3F-4252-84A6-ABC691FAD66D}"
+	VCNestedProjectGUID="{9E49BE72-BA23-4D34-8478-E7A28E25BA81}"
+	VCNestedProjectFileName="raymarching.vcproj">
+	<Configurations>
+		<Configuration
+			Name="Release|Win32">
+			<Tool
+				Name="CppCmplrTool"
+				GlobalOptimizations="true"
+				FloatingPointModel="1000"
+				FlushDenormalResultsToZero="true"
+				Parallelization="false"/>
+		</Configuration>
+	</Configurations>
+	<Files/>
+</VisualStudioProject>

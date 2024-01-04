@@ -1,0 +1,66 @@
+.codtBase .prettyprint ol.linenums {
+	margin:0 !important;
+}
+
+.ipsButton_secondary.ctabout {
+   display: none;
+}
+
+.codtBase ol li {
+	list-style-type: decimal-leading-zero !important;
+}
+
+.codtBase pre.prettyprint {
+	width: auto;
+}
+
+.codtBase .nonum ol li {
+	list-style-type: none !important;
+}
+
+.codtBase {
+    margin-top: 10px; margin-bottom: 10px;
+    position: relative;
+    width: 95%;
+}
+.codetool {
+	position:absolute;
+	right:30px;
+	top:5px;
+	margin:0 !important;
+	opacity:.3;
+	-webkit-transition: all .1s ease-in;
+	-moz-transition: all .1s ease-in;
+	-ms-transition: all .1s ease-in;
+	-o-transition: all .1s ease-in;
+	transition: all .1s ease-in;
+}
+.codtBase:hover  .codetool {
+	opacity:1;
+}
+.codetool li {
+	float:left;
+    list-style:none;
+}
+.codetool li a {
+	background: url(http://public.gamedev.net//public/style_images/master/coodtoolbar/info.png) no-repeat 50% 50%;
+	position:relative;
+	margin-left:3px;
+	min-height: 22px;
+}
+.codetool li a.ctprintSource {
+	background-image: url(http://public.gamedev.net//public/style_images/master/coodtoolbar/print.png);
+}
+.codetool li a.ctcopy {
+	background-image: url(http://public.gamedev.net//public/style_images/master/coodtoolbar/copy.png);
+}
+.codetool li a.ctTogglenum {
+	background-image: url(http://public.gamedev.net//public/style_images/master/coodtoolbar/number.png);
+}
+.codetool li a.ctviewcode {
+	background-image: url(http://public.gamedev.net//public/style_images/master/coodtoolbar/popup.png);
+}
+
+.ctcopy embed {
+	vertical-align: inherit;
+}

@@ -1,0 +1,23 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+                  <script type="text/javascript">
+                  var data = {"ReadSession":"https://stackauth.com/auth/global/read-session","Request":"EAUllqNy+G+Tb+Z9hql4DElEp6LKiA1nODdZvUhJSCVHVSGTBn0WJJBIhIHetwE6BPADp7Afme42/Q3738n1G5UDINMT13PNB96ahFKgwMY=","Nonce":"0XPhUAAAAAAX6Gvvo5Pe+A==","Referrer":"http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms","StorageName":"GlobalLogin"};
+
+                  var toMsg = window.parent;
+
+                  var obj = localStorage.getItem(data.StorageName);
+                  if(obj != null) {
+                  var req = new XMLHttpRequest();
+                  req.open('POST', data.ReadSession+'?request='+encodeURIComponent(data.Request)+'&nonce='+encodeURIComponent(data.Nonce)+'&seriesAndToken='+encodeURIComponent(obj), false);
+                  req.send(null);
+                  
+                    if(req.status == 200){
+                      toMsg.postMessage(req.responseText, data.Referrer);
+                    }else{
+                      toMsg.postMessage('No Session', data.Referrer);
+                    }
+                  }else{
+                    toMsg.postMessage('No Local Storage', data.Referrer);
+                  }
+                  </script>
+                  </head><body></body></html>

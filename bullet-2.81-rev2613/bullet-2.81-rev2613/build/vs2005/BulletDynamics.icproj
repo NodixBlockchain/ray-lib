@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="BulletDynamics"
+	ProjectGUID="{FAE147DF-4127-4C64-A9AC-8FBEF3BEFF5D}"
+	VCNestedProjectGUID="{79DA1EEA-03DC-3E4E-AB4F-C1E8388CAFCD}"
+	VCNestedProjectFileName="BulletDynamics.vcproj">
+	<Configurations/>
+	<Files/>
+</VisualStudioProject>

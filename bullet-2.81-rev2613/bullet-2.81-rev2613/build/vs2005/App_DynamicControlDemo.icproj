@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="App_DynamicControlDemo"
+	ProjectGUID="{588744B2-B319-49C6-B07F-947F10CDA18B}"
+	VCNestedProjectGUID="{11D72E00-175F-5741-83A0-6F9637FBDD18}"
+	VCNestedProjectFileName="App_DynamicControlDemo.vcproj">
+	<Configurations/>
+	<Files/>
+</VisualStudioProject>

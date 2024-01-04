@@ -1,0 +1,23 @@
+main: initializing...
+main: all main components initialized.
+main: reading parameter block...
+main: initialization done
+video/opengl: wglSwapIntervalEXT supported
+video/opengl: FBOs supported
+main: video encoder initialized.
+video: capturing at 640x480
+avi_vfw: opened video stream at 25.000 fps (2500/100)
+avi_vfw: segment 1 reached maximum size, creating next segment.
+avi_vfw: stopped recording
+avi_vfw: avifile shutdown complete
+avi_vfw: opened video stream at 25.000 fps (2500/100)
+avi_vfw: segment 2 reached maximum size, creating next segment.
+avi_vfw: stopped recording
+avi_vfw: avifile shutdown complete
+avi_vfw: opened video stream at 25.000 fps (2500/100)
+main: shutting down...
+main: hook thread exiting
+timing: 17.26 frames per second on average
+avi_vfw: stopped recording
+avi_vfw: avifile shutdown complete
+main: everything ok, closing log.

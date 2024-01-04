@@ -1,0 +1,111 @@
+.reg_required {
+   border-top: 1px solid #f79797;
+   background: #d93838;
+   background: -webkit-gradient(linear, left top, left bottom, from(#bf2c36), to(#d93838));
+   background: -moz-linear-gradient(top, #bf2c36, #d93838);
+   padding: 3px 7px;
+   -webkit-border-radius: 5px;
+   -moz-border-radius: 5px;
+   border-radius: 5px;
+   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   box-shadow: rgba(0,0,0,1) 0 1px 0;
+   color: #ffffff;
+   font-size: 9px;
+   font-family: Helvetica, Arial, Sans-Serif;
+   text-decoration: none;
+   vertical-align: middle;
+   opacity: 0.5;
+   -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; 
+   filter: alpha(opacity=50);					
+
+   }
+
+.tool {
+	
+}
+
+.votecard {
+	width: 63px;
+	height: 25px;
+	text-align: center;
+}
+
+.votecard div {
+	position: relative;
+	overflow: hidden;
+	width: 63px;
+	height: 25px;
+}
+
+.votecard em {
+	display: block;
+	position: relative;
+	width: 63px;
+	height: 25px;
+	font: normal 24px/24px "Helvetica Neue","Helvetica","Arial",Sans-serif;
+	color: #45453f;
+}
+.votecard strong {
+	font-weight: bold;
+}
+.votecard span {
+	font-size: 10px;
+	line-height: 10px;
+	display: block;
+	color: #9a9a94;
+}
+a.voteaction_dislike {
+	margin: 0 0 0 0px;
+	position: relative;
+	left: 20px;
+	display: block;
+	text-indent: -9999px;
+	width: 23px;
+	height: 17px;
+	background: url(/images/news/sprite-vote.png) no-repeat -24px -17px;
+}
+a.voteaction_dislike:hover {
+	outline: none;
+	background-position: -24px -0px;
+}
+a.voteaction_like {
+	margin: 0 0 0 0px;
+	position: relative;
+	left: 20px;
+	display: block;
+	text-indent: -9999px;
+	width: 23px;
+	height: 17px;
+	background: url(/images/news/sprite-vote.png) no-repeat -0px -17px;
+}
+a.voteaction_like:hover {
+	outline: none;
+	background-position: -0px -0px;
+}
+a.voted_like,
+a.voted_like:hover {
+	outline: none;
+	background-position: -47px -0px;
+	cursor: default;
+}
+a.voted_dislike,
+a.voted_dislike:hover {
+	outline: none;
+	background-position: -47px -17px;
+	cursor: default;
+}
+
+a.voted_disabled,
+a.voted_disabled:hover {
+	outline: none;
+	background-position: -24px -17px;
+	cursor: default;	
+}
+
+a.voted_disabled_like,
+a.voted_disabled_like:hover {
+	outline: none;
+	background-position: -0px -17px;
+	cursor: default;	
+}

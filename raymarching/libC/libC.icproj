@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="libC"
+	ProjectGUID="{CBC8F3F3-6DD6-4DE2-8970-9131EC0D1F6F}"
+	VCNestedProjectGUID="{DF6D31CA-2723-4E38-9A43-3D3358488A7A}"
+	VCNestedProjectFileName="libC.vcproj">
+	<Configurations/>
+	<Files/>
+</VisualStudioProject>

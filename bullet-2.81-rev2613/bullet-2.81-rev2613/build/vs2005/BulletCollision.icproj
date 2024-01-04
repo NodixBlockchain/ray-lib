@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="BulletCollision"
+	ProjectGUID="{CFE09900-48D9-45AB-920C-BD087ABA85D9}"
+	VCNestedProjectGUID="{1DA16D83-470E-3C4F-8522-032DE39228F8}"
+	VCNestedProjectFileName="BulletCollision.vcproj">
+	<Configurations/>
+	<Files/>
+</VisualStudioProject>

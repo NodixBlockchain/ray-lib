@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Intel C++ Project"
+	Version="11.1"
+	Name="libray"
+	ProjectGUID="{DDA46271-77DE-4FEB-9ED6-B26466BFFD62}"
+	VCNestedProjectGUID="{7F80B9C2-2EEE-4CE8-9154-92C43B6C3396}"
+	VCNestedProjectFileName="libray.vcproj">
+	<Configurations>
+		<Configuration
+			Name="Release|Win32">
+			<Tool
+				Name="CppCmplrTool"
+				Optimization="1000"
+				GlobalOptimizations="true"
+				InterproceduralOptimization="2"
+				FloatingPointModel="1000"
+				FlushDenormalResultsToZero="false"
+				FloatingPointSpeculation="0"/>
+		</Configuration>
+	</Configurations>
+	<Files/>
+</VisualStudioProject>

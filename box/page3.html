@@ -1,0 +1,1371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+  <title>Textures : Raytracer en C++</title>
+
+
+  <style type="text/css"> body{margin:0px 0px 0px 0px;font-family:arial, helvetica;background-color:#CCCCFF}
+#main{margin:20px;border:1px solid #000;background-color:#fff;padding:0px 0px 15px 15px}
+#Title{font-size:35px;padding-left:0px;padding-top:10px;text-transform:none;color:#000;font-weight:bold}
+#Title a {text-decoration:inherit;color:inherit;}
+#Description{padding:0px;padding-top:10px;font-size:12px;;font-weight:normal}
+.PostTitle{border-bottom:solid 1px #C3CFE5;font-size:20px;text-align:left;margin-top:30px;width:300px;margin-bottom:0px;color:gray;font-weight:bold}
+.PostTitle2{font-size:16px;font-weight:bold;font-family:arial, helvetica;}
+.Post{margin-bottom:20px;font-size:17px;padding-right:15px;line-height:22px;font-family: arial, helvetica;color:black;}
+.Post2{margin-bottom:20px;font-size:15px;padding-right:15px;line-height:22px;font-family:arial, helvetica;color:black;}
+.PostFooter{margin-bottom:10px;margin-left:0px;color:gray;font-size:10px}
+.DateHeader {}
+#menu{border-left:1px solid #000;border-bottom:1px solid #000;float:right;padding:10px;width:160px;margin:0px 0px 10px 10px;background-color:#eee;color:#6666FF}
+p{margin:10px 10px 10px 10px}
+#SideBar{font-size:12px;margin-top:15px}
+a{text-decoration:none}
+a:hover{background-color:#CCCCFF}
+.Post em {font-family: Georgia, serif;}
+div.code{font-family: Courier New, Courier, monospace;font-size:15px;margin: 5px 5px 5px 5px;padding: 5px 5px 5px 5px;color: #000000;line-height:normal;background-color: #FFFFFF;border: 1px solid #000000;}
+.blogComments{font-size:16px;font-weight:bold;font-family:arial, helvetica;}
+.blogComment{margin-bottom:20px;font-size:15px;font-weight:normal;padding-right:15px;line-height:22px;font-family:arial, helvetica;color:black;}
+.deleted-comment {font-style:italic;color:gray;}
+.byline{margin-bottom:10px;margin-left:0px;margin-right:10px;color:gray;font-size:10px;display:inline;}
+.profile-datablock { }
+.profile-img {display:inline;}
+.profile-img img {float:left;margin:0 10px 5px 0;}
+.profile-data strong {display:block;}
+.profile-textblock {margin-left:0px;}
+.profile-link {margin-left:0px;}
+h2.sidebar-title {font-size:inherit;}
+  </style><!-- Meta Information -->
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="MSSmartTagsPreventParsing" content="true">
+
+  <meta name="generator" content="Blogger">
+
+  <meta name="keywords" content="Grégory, Gregory, Massal, Programmation, Coding, Programming, Graphics, Graphisme, Stereovision, Raytracer, Bezier, C++, Polytechnique">
+
+  <script src="page3_fichiers/urchin.js" type="text/javascript">
+  </script>
+  <script type="text/javascript">
+_uacct = "UA-105832-1";
+urchinTracker();
+  </script>
+</head>
+
+
+<body style="direction: ltr;">
+
+<div id="main">
+<div class="Post">
+<h1 class="PostTitle">Textures
+</h1>
+
+<p>Maintenant que l'on a vu comment traiter les
+propriétés simples des surfaces, on va essayer
+de rajouter un peu de détail à tout
+ça. La manière la plus simple de
+rajouter des détails est l'utilisation
+de textures.</p>
+
+<p>Je ne vais pas traiter du texturing en
+général avec toutes les
+difficultés associées
+mais je vais débuter en douceur par les textures <em>procédurales</em>
+et les textures d'<em>environnement</em>.</p>
+
+<p>C'est la troisième partie de notre série
+d'articles sur le raytracing
+en C++. Elle fait suite à la partie intitulée <a href="http://www.massal.net/article/raytrace/page2.html">"Supersampling
+et postprocessing"</a>. </p>
+
+<h2 class="PostTitle2">Bruit
+de Perlin</h2>
+
+<p>Ken Perlin est l'un des pionners de l'imagerie de
+synthèse, il a
+participé à la création de films
+comme Tron et son fameux "bruit" est l'une des formules les plus
+utilisées dans le monde du graphisme.
+Le bruit de Perlin a une quantité de bonnes
+caractéristiques sur
+lesquelles je ne m'étendrai pas trop. Vous pouvez
+vous référer à son site pour plus
+d'infos: <strong>http://mrl.nyu.edu/~perlin/</strong>.
+C'est également sur cette page que vous pouvez trouver le
+code source
+de son bruit qui reste très simple. Voici la version
+adaptée
+en C++ directement traduite de la version originale en java :</p>
+
+<div class="code">struct perlin<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+int p[512];<br>
+
+&nbsp;&nbsp;&nbsp; perlin(void);<br>
+
+&nbsp;&nbsp;&nbsp;
+static perlin &amp; getInstance(){static perlin instance; return
+instance;}<br>
+
+};<br>
+
+<br>
+
+static int
+permutation[] = { 151,160,137,91,90,15,<br>
+
+&nbsp;&nbsp;
+131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,<br>
+
+&nbsp;&nbsp;
+190,
+6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,<br>
+
+&nbsp;&nbsp;
+88,237,149,56,87,174,20,125,136,171,168,
+68,175,74,165,71,134,139,48,27,166,<br>
+
+&nbsp;&nbsp;
+77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,<br>
+
+&nbsp;&nbsp;
+102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208,
+89,18,169,200,196,<br>
+
+&nbsp;&nbsp;
+135,130,116,188,159,86,164,100,109,198,173,186,
+3,64,52,217,226,250,124,123,<br>
+
+&nbsp;&nbsp;
+5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,<br>
+
+&nbsp;&nbsp;
+223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167,
+43,172,9,<br>
+
+&nbsp;&nbsp; 129,22,39,253,
+19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,<br>
+
+&nbsp;&nbsp;
+251,34,242,193,238,210,144,12,191,179,162,241,
+81,51,145,235,249,14,239,107,<br>
+
+&nbsp;&nbsp;
+49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127,
+4,150,254,<br>
+
+&nbsp;&nbsp;
+138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180<br>
+
+&nbsp;&nbsp;
+};<br>
+
+<br>
+
+static double fade(double t) <br>
+
+{ <br>
+
+&nbsp;&nbsp;&nbsp;
+return t * t * t * (t * (t * 6 - 15) + 10); <br>
+
+}<br>
+
+static
+double lerp(double t, double a, double b) { <br>
+
+&nbsp;&nbsp;&nbsp;
+return a + t * (b - a); <br>
+
+}<br>
+
+static double
+grad(int hash, double x, double y, double z) {<br>
+&nbsp;&nbsp;&nbsp;
+int h = hash &amp;
+15;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//
+ CONVERT LO 4 BITS OF HASH CODE<br>
+
+&nbsp;&nbsp;&nbsp;
+double u = h&lt;8||h==12||h==13 ? x : y,&nbsp;&nbsp; //
+INTO 12 GRADIENT DIRECTIONS.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+v = h&lt;4||h==12||h==13 ? y : z;<br>
+
+&nbsp;&nbsp;&nbsp;
+return ((h&amp;1) == 0 ? u : -u) + ((h&amp;2) == 0 ? v : -v);<br>
+
+}<br>
+
+&nbsp;&nbsp;
+<br>
+
+double noise(double x, double y, double z) {<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+perlin &amp; myPerlin = perlin::getInstance();<br>
+
+&nbsp;&nbsp;&nbsp;
+int X = (int)floor(x) &amp;
+255,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// FIND UNIT CUBE THAT<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Y = (int)floor(y) &amp;
+255,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// CONTAINS POINT.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Z = (int)floor(z) &amp; 255;<br>
+&nbsp;&nbsp;&nbsp;
+x -=
+floor(x);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//
+ FIND RELATIVE X,Y,Z<br>
+&nbsp;&nbsp;&nbsp; y -=
+floor(y);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//
+ OF POINT IN CUBE.<br>
+
+&nbsp;&nbsp;&nbsp; z -=
+floor(z);<br>
+&nbsp;&nbsp;&nbsp;
+double u =
+fade(x),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//
+ COMPUTE FADE CURVES<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+v =
+fade(y),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//
+ FOR EACH OF X,Y,Z.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+w = fade(z);<br>
+
+&nbsp;&nbsp;&nbsp;
+int A = myPerlin.p[X&nbsp; ]+Y, AA = myPerlin.p[A]+Z, AB =
+myPerlin.p[A+1]+Z,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+HASH COORDINATES OF<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+B = myPerlin.p[X+1]+Y, BA = myPerlin.p[B]+Z, BB =
+myPerlin.p[B+1]+Z;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+THE 8 CUBE CORNERS,<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+return lerp(w, lerp(v, lerp(u, grad(myPerlin.p[AA&nbsp; ],
+x&nbsp; ,
+y&nbsp; , z&nbsp;&nbsp; ),&nbsp; // AND ADD<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+grad(myPerlin.p[BA&nbsp;
+ ], x-1, y&nbsp; ,
+z&nbsp;&nbsp; )), // BLENDED<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+lerp(u,
+ grad(myPerlin.p[AB&nbsp; ], x&nbsp; , y-1,
+z&nbsp;&nbsp;
+),&nbsp; // RESULTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+grad(myPerlin.p[BB&nbsp;
+ ], x-1, y-1, z&nbsp;&nbsp; ))),//
+FROM&nbsp; 8<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+lerp(v, lerp(u, grad(myPerlin.p[AA+1], x&nbsp; , y&nbsp; , z-1
+),&nbsp;
+// CORNERS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+grad(myPerlin.p[BA+1],
+ x-1, y&nbsp; , z-1 )), // OF CUBE<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+lerp(u,
+ grad(myPerlin.p[AB+1], x&nbsp; , y-1, z-1 ),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+grad(myPerlin.p[BB+1],
+ x-1, y-1, z-1 ))));<br>
+
+}<br>
+
+<br>
+
+perlin::perlin
+(void) <br>
+
+{ <br>
+
+&nbsp;&nbsp;&nbsp; for
+(int i=0; i &lt; 256 ; i++) {<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+p[256+i] = p[i] = permutation[i];<br>
+
+&nbsp;&nbsp;&nbsp;
+}<br>
+
+}<br>
+
+<br>
+
+</div>
+
+<br>
+
+<h2 class="PostTitle2">Matériaux
+procéduraux</h2>
+
+<p>On va utiliser le bruit de base, on peut lui appliquer une
+série de
+transformations pour créer de nouvelles
+textures en variations infinies.</p>
+
+<p>Voici le code par exemple qui crée une texture <em>turbulente</em>
+en combinant des harmoniques du bruit de base:</p>
+
+<div class="code">case material::turbulence:<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for (int level = 1; level &lt; 10; level ++)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+noiseCoef += (1.0f / level )&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+* fabsf(float(noise(level * 0.05 * ptHitPoint.x,&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+level
+ * 0.05 * ptHitPoint.y,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+level
+ * 0.05 * ptHitPoint.z)));<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+};<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+output = output +&nbsp; coef * (lambert *
+currentLight.intensity)&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+* (noiseCoef * currentMat.diffuse + (1.0f - noiseCoef) *
+currentMat.diffuse2);<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp;
+break;<br>
+
+<br>
+
+default:<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; output.red += lambert *
+currentLight.intensity.red * currentMat.diffuse.red;<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; output.green += lambert *
+currentLight.intensity.green * currentMat.diffuse.green;<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; output.blue += lambert *
+currentLight.intensity.blue * currentMat.diffuse.blue;<br>
+
+&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp; break;<br>
+
+<br>
+
+</div>
+
+<br>
+
+<p>Voici
+un exemple de code qui crée un effet de texture <em>marbrée</em>:
+</p>
+
+<div class="code">case material::marble:<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp; for (int level = 1; level
+&lt; 10; level ++)<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+noiseCoef +=&nbsp; (1.0f / level)&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+* fabsf(float(noise(level * 0.05 * ptHitPoint.x,&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+level
+ * 0.05 * ptHitPoint.y,&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+level
+ * 0.05 * ptHitPoint.z)));<br>
+
+&nbsp;&nbsp;&nbsp;
+};<br>
+
+&nbsp;&nbsp;&nbsp; noiseCoef = 0.5f * sinf(
+(ptHitPoint.x + ptHitPoint.y) * 0.05f + noiseCoef) + 0.5f;<br>
+
+&nbsp;&nbsp;&nbsp;
+output = output +&nbsp; coef * (lambert *
+currentLight.intensity)&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+* (noiseCoef * currentMat.diffuse + (1.0f - noiseCoef) *
+currentMat.diffuse2);<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp;
+break;</div>
+
+<p>Ces deux modèles modifient juste la couleur diffuse
+utilisée dans le
+modèle d'éclairage de Lambert. On peut imaginer
+qu'ils puissent
+contrôler bien plus que ça comme la transparence
+ou la couleur
+spéculaire. Ces exemples sont des bases que vous pouvez
+complexifier
+comme bon vous semble.</p>
+
+<div style="color: rgb(153, 153, 153);">
+<p><em>Ce qui
+est intéressant avec ces deux modèles c'est
+qu'ils sont intrinséquement
+3D. Usuellement
+il y a des problèmes de mapping lorsque l'on veut texturer
+une sphère
+de manière correcte (ou tout autre
+objet un peu complexe) parce qu'en général les
+texture maps sont en 2D
+et ne sont pas naturellement proches
+de l'objet à texturer. La raison pour laquelle il est facile
+de passer
+en 3D avec des textures procédurales
+c'est que le coût de la troisième dimension n'en
+est pas vraiment un,
+alors que s'il avait fallu
+lire un fichier image et avoir la même résolution
+avec une texture en
+3Dimension le coût en stockage
+mémoire aurait été prohibitif.
+Lorsqu'on ne peut pas utiliser de
+modèles procéduraux, ce qui est
+généralement
+le cas en temps réel ou lorsque la texture ne s'y
+prête pas (photo de
+la Terre, objet réel scanné etc..), on fait un </em>spherical
+mapping<em> pour des objets sphériques ou un </em>UV
+mapping<em> pour des objets complexes.</em></p>
+
+</div>
+
+<h2 class="PostTitle2">Bump mapping</h2>
+
+<p>Les textures procédurales ci dessus jouent sur la
+valeur du terme
+diffus de Lambert pour rendre des surfaces plus
+intéressantes, mais ce
+n'est pas le seul terme sur lequel on peut jouer. La forme
+la plus répandue de bump mapping consiste à
+modifier légèrement la
+normale à la surface par
+pixel afin de donner l'illusion que la géométrie
+est plus complexe
+qu'une surface simple.
+Modifier la direction du vecteur normal ne modifie pas la
+géométrie
+mais fait varier l'intensité
+lumineuse de telle sorte que l'on peut croire qu'il y a des bosses
+("bumps") à la surface.</p>
+
+<p style="text-align: center;"><img style="width: 459px; height: 213px;" alt="" src="page3_fichiers/bump.gif"></p>
+
+<p>Le code suivant lit le
+niveau de bump dans le fichier scène et déplace
+la normale du modèle
+d'éclairage
+par un vecteur de "bruit de Perlin". Ensuite il faut renormaliser le
+vecteur obtenu et le réutiliser
+dans les équations d'éclairage.</p>
+
+<div style="color: rgb(153, 153, 153);">
+<p><em>Note
+:
+normaliser consiste à prendre le vecteur unitaire dans la
+même
+direction que le vecteur d'origine. Cela est nécessaire
+lorsqu'un
+vecteur qui est censé rester unitaire tout le temps
+est soumis à une transformation qui n'est pas une simple
+rotation. Pour
+cela il suffit de calculer la norme (longueur)
+du vecteur à normaliser, prendre l'inverse de cette norme et
+diviser
+chacun des membres du vecteur par cet inverse.</em></p>
+
+</div>
+
+<div class="code">if (currentMat.bump)<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+float noiseCoefx = float(noise(0.1 * double(ptHitPoint.x), 0.1 *
+double(ptHitPoint.y),0.1 * double(ptHitPoint.z)));<br>
+
+&nbsp;&nbsp;&nbsp;
+float noiseCoefy = float(noise(0.1 * double(ptHitPoint.y), 0.1 *
+double(ptHitPoint.z),0.1 * double(ptHitPoint.x)));<br>
+
+&nbsp;&nbsp;&nbsp;
+float noiseCoefz = float(noise(0.1 * double(ptHitPoint.z), 0.1 *
+double(ptHitPoint.x),0.1 * double(ptHitPoint.y)));<br>
+
+&nbsp;&nbsp;&nbsp;
+<br>
+
+&nbsp;&nbsp;&nbsp; vNormal.x = (1.0f -
+currentMat.bump ) * vNormal.x + currentMat.bump * noiseCoefx;&nbsp;
+<br>
+
+&nbsp;&nbsp;&nbsp; vNormal.y = (1.0f -
+currentMat.bump ) * vNormal.y + currentMat.bump * noiseCoefy;&nbsp;
+<br>
+
+&nbsp;&nbsp;&nbsp; vNormal.z = (1.0f -
+currentMat.bump ) * vNormal.z + currentMat.bump * noiseCoefz;&nbsp;
+<br>
+
+&nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;
+temp = vNormal * vNormal;<br>
+
+&nbsp;&nbsp;&nbsp; if
+(temp == 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp; break;<br>
+
+&nbsp;&nbsp;&nbsp;
+temp = invsqrtf(temp);<br>
+
+&nbsp;&nbsp;&nbsp;
+vNormal = temp * vNormal;<br>
+
+}<br>
+
+</div>
+
+<br>
+
+<p>La
+sphère en haut de l'image utilise un éclairage de
+Lambert sans texture.
+La partie basse a ses normales qui varient selon un bruit de Perlin ce
+qui lui donne cet aspect bosselé. Si la lumière
+bougeait on verrait l'éclairage varier en temps
+réel.</p>
+
+<p>Aucun nouveau détail
+géométrique n'a été
+ajouté ce qui fait que la
+silhouette de la sphère
+reste aussi lisse que sa version non bosselée !</p>
+
+<p style="text-align: center;"><img style="width: 341px; height: 287px;" alt="" src="page3_fichiers/bump.png"></p>
+
+<h2 class="PostTitle2">Cubic
+environment mapping</h2>
+
+<p>Le mapping cubique est aussi une manière de mapper
+une sphère. (cf ce
+que l'on avait
+évoqué plus haut). A cet effet pour chaque point
+de la sphère on va
+associer une direction
+(du centre au point) et chaque direction va être
+amenée dans une
+partition de l'espace représentée par les faces
+du cube. En gros on va
+projeter le point depuis le centre sur la surface d'un cube
+environnant. Chaque face du cube est alors ramenée
+à une texture 2D
+classique. </p>
+
+<p style="text-align: center;"><img style="width: 474px; height: 174px;" alt="" src="page3_fichiers/cubic.gif"> </p>
+
+<p>Pourquoi un cube ?
+Les raisons sont multiples. La première est la
+simplicité de la
+création
+du cube d'environement. Il suffit en général de
+faire un rendu
+préalable d'un environnement virtuel dans six plans
+orthogonaux qui
+représentent les six directions du cube. La projection
+utilisée lors de
+la création est une perspective conique centrée
+au centre du cube (ou
+de la sphère virtuelle à mapper). La
+deuxième est l'efficacité du
+stockage qui ne déforme que peu les pixels par rapport
+à
+d'autres formes de mapping de la sphère. Il y a d'autres
+méthodes qui
+déforment encore moins comme
+le mapping parabolique mais qui ne sont pas mises en oeuvre aussi
+facilement et nécessite plus
+de calculs intermédiaires quand il s'agit de
+créer les texture ou de
+les lire. </p>
+
+<p>Voici les six faces d'un cube d'environnement mis bout
+à bout: </p>
+
+<p style="text-align: center;"><img style="width: 800px; height: 133px;" alt="" src="page3_fichiers/cubetogether.png"> </p>
+
+<p>Déterminer la
+face du cube à lire ne peut être fait qu'en
+énumérant les six cas
+possibles mais cela reste assez simple : </p>
+
+<div class="code">color readCubemap(const cubemap
+&amp; cm, ray myRay)<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+color * currentColor ;<br>
+
+&nbsp;&nbsp;&nbsp; color
+outputColor = {0.0f,0.0f,0.0f};<br>
+
+&nbsp;&nbsp;&nbsp;
+if(!cm.texture)<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return outputColor;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp;
+if ((fabsf(myRay.dir.x) &gt;= fabsf(myRay.dir.y))
+&amp;&amp; (fabsf(myRay.dir.x) &gt;= fabsf(myRay.dir.z)))<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (myRay.dir.x &gt; 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+currentColor = cm.texture + cubemap::right * cm.sizeX * cm.sizeY;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor = readTexture(currentColor,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0f - (myRay.dir.z / myRay.dir.x+ 1.0f) * 0.5f,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(myRay.dir.y / myRay.dir.x+ 1.0f) * 0.5f, cm.sizeX, cm.sizeY);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else if (myRay.dir.x &lt; 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+currentColor = cm.texture + cubemap::left * cm.sizeX * cm.sizeY;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor = readTexture(currentColor,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0f - (myRay.dir.z / myRay.dir.x+ 1.0f) * 0.5f,<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0f - ( myRay.dir.y / myRay.dir.x + 1.0f) * 0.5f,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cm.sizeX, cm.sizeY);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp;
+else if ((fabsf(myRay.dir.y) &gt;= fabsf(myRay.dir.x))
+&amp;&amp;
+(fabsf(myRay.dir.y) &gt;= fabsf(myRay.dir.z)))<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (myRay.dir.y &gt; 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+currentColor = cm.texture + cubemap::up * cm.sizeX * cm.sizeY;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor = readTexture(currentColor,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(myRay.dir.x / myRay.dir.y + 1.0f) * 0.5f,<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0f - (myRay.dir.z/ myRay.dir.y + 1.0f) * 0.5f, cm.sizeX, cm.sizeY);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else if (myRay.dir.y &lt; 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+currentColor = cm.texture + cubemap::down * cm.sizeX * cm.sizeY;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor = readTexture(currentColor,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0f - (myRay.dir.x / myRay.dir.y + 1.0f) * 0.5f,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(myRay.dir.z/myRay.dir.y + 1.0f) * 0.5f, cm.sizeX, cm.sizeY);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp;
+else if ((fabsf(myRay.dir.z) &gt;= fabsf(myRay.dir.x))
+&amp;&amp;
+(fabsf(myRay.dir.z) &gt;= fabsf(myRay.dir.y)))<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (myRay.dir.z &gt; 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+currentColor = cm.texture + cubemap::forward * cm.sizeX * cm.sizeY;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor = readTexture(currentColor,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(myRay.dir.x / myRay.dir.z + 1.0f) * 0.5f,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(myRay.dir.y/myRay.dir.z + 1.0f) * 0.5f, cm.sizeX, cm.sizeY);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else if (myRay.dir.z &lt; 0.0f)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+currentColor = cm.texture + cubemap::backward * cm.sizeX * cm.sizeY;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor = readTexture(currentColor,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(myRay.dir.x / myRay.dir.z + 1.0f) * 0.5f,&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0f - (myRay.dir.y /myRay.dir.z+1) * 0.5f, cm.sizeX, cm.sizeY);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+return outputColor;<br>
+
+}<br>
+
+</div>
+
+<p><code>cubemap</code>
+est une structure que j'ai
+créée qui contient toutes les informations
+nécessaires sur les six textures qui constituent le cube. </p>
+
+<p>La lecture de la texture se fait de manière
+classique. Chaque point de
+la texture est identifié par un jeu de
+coordonnées entre 0 et 1. À
+chaque lecture la fonction read texture va lire les quatre couleurs
+les plus proches dans notre tableau de données et faire une
+simple
+interpolation linéaire entre
+ces quatre couleurs. </p>
+
+<p>Rappel, pour quatre points P0, P1, P2, P3, l'interpolation
+bilinéaire
+en un point situé dans le carré est
+donné par
+la formule suivante : </p>
+
+<p style="text-align: center;"><img style="width: 507px; height: 194px;" alt="" src="page3_fichiers/bilinear.gif"> </p>
+
+<p>Ce qui se traduit
+dans notre code par la fonction <code>readTexture</code>
+suivante: </p>
+
+<div class="code">color readTexture(const color* tab,
+float u, float v, int sizeU, int sizeV)<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+u = fabsf(u);<br>
+
+&nbsp;&nbsp;&nbsp; v = fabsf(v);<br>
+
+&nbsp;&nbsp;&nbsp;
+int umin = int(sizeU * u);<br>
+
+&nbsp;&nbsp;&nbsp;
+int vmin = int(sizeV * v);<br>
+
+&nbsp;&nbsp;&nbsp;
+int umax = int(sizeU * u) + 1;<br>
+
+&nbsp;&nbsp;&nbsp;
+int vmax = int(sizeV * v) + 1;<br>
+
+&nbsp;&nbsp;&nbsp;
+float ucoef = fabsf(sizeU * u - umin);<br>
+
+&nbsp;&nbsp;&nbsp;
+float vcoef = fabsf(sizeV * v - vmin);<br>
+
+&nbsp;&nbsp;&nbsp;
+<br>
+
+&nbsp;&nbsp;&nbsp; // la texture est adresse
+sur [0,1]<br>
+
+&nbsp;&nbsp;&nbsp; // le type
+d'adressage est la pour<br>
+
+&nbsp;&nbsp;&nbsp; //
+determiner comment on gere les<br>
+
+&nbsp;&nbsp;&nbsp;
+// coordonnées qui sont en dehors des bornes.<br>
+
+&nbsp;&nbsp;&nbsp;
+// par défaut on ramène ce qui est plus<br>
+
+&nbsp;&nbsp;&nbsp;
+// petit que zéro à zéro<br>
+
+&nbsp;&nbsp;&nbsp; //
+et ce qui est plus grand que un à un.<br>
+
+&nbsp;&nbsp;&nbsp;
+// (opérateur de saturation ou clamping)<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+// Clamping est le défaut pour les textures<br>
+
+&nbsp;&nbsp;&nbsp;
+umin = min(max(umin, 0), sizeU - 1);<br>
+
+&nbsp;&nbsp;&nbsp;
+umax = min(max(umax, 0), sizeU - 1);<br>
+
+&nbsp;&nbsp;&nbsp;
+vmin = min(max(vmin, 0), sizeV - 1);<br>
+
+&nbsp;&nbsp;&nbsp;
+vmax = min(max(vmax, 0), sizeV - 1);<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+// Ce qui suit est une interpolation bilinéaire<br>
+
+&nbsp;&nbsp;&nbsp;
+// selon les deux coordonnées u et v.<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+color output = <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(1.0f - vcoef) * <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+((1.0f - ucoef) * tab[umin&nbsp; + sizeU * vmin] <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ ucoef * tab[umax + sizeU * vmin])<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++&nbsp;&nbsp; vcoef * <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+((1.0f - ucoef) * tab[umin&nbsp; + sizeU * vmax] <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ ucoef * tab[umax + sizeU * vmax]);<br>
+
+&nbsp;&nbsp;&nbsp;
+return output;<br>
+
+}<br>
+
+</div>
+
+<br>
+
+<p>Pour
+simuler un environnement virtuel à partir d'une photo
+ou d'une image précalculée
+on va simplement aller voir dans la cube map quelle est la couleur
+associée pour tout
+rayon qui n'a pas touché de sphère. Un rayon qui
+part à l'infini qu'il
+soit parti de la caméra
+ou après plusieurs inter-reflexions va heurter une
+sphère
+d'environnement virtuelle qui est mappé en cubic mapping. </p>
+
+<div class="code">if (currentSphere == -1)<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+// On simule un environnement virtuel<br>
+
+&nbsp;&nbsp;&nbsp;
+// à partir d'une texture.<br>
+
+&nbsp;&nbsp;&nbsp;
+output += coef * readCubemap(myScene.cm, viewRay);<br>
+
+&nbsp;&nbsp;&nbsp;
+break;<br>
+
+}<br>
+
+</div>
+
+<br>
+
+<p>Dans
+l'image suivante, on peut voir l'environnement soit
+directement (ce qui donne une couleur uniforme à
+cause de notre projection orthogonale), soit après une
+reflexion dans
+une sphère purement réflexive. </p>
+
+<p style="text-align: center;"><img style="width: 226px; height: 182px;" alt="" src="page3_fichiers/cube.png"> </p>
+
+<div style="color: rgb(153, 153, 153);">
+<p><em>Digression
+: Le
+cubemapping ne déforme pas l'environnement. Si les faces du
+cube
+sont correctement calculées et à une
+résolution suffisante alors c'est
+une représentation parfaite d'un environnement
+situé
+à l'infini. meme si elle a besoin de trois
+coordonnées
+pour être adressée ce n'est qu'une image en 2D et
+bien entendu il y a
+des inconvénients. Cela veut dire qu'il n'y a pas de
+parallax. Si votre
+caméra se déplace dans l'espace l'environnement
+ne changera pas
+d'aspect
+en conséquence à moins de le recalculer avec un
+nouveau point de vue.
+Si vous êtes dans un espace clos cela se verra
+très vite
+par contre dans un espace ouvert avec une cubemap qui ne contient que
+les objets les plus lointains cela suffit (comme les nuages,
+les étoiles dans le ciel ou l'horizon). En pratique il faut
+juste vous
+assurer que les objets sont suffisamment lointains
+et que votre caméra ou vos objets
+réfléchissants ne se déplace pas trop
+rapidement par rapport à la plus grande dimension de la
+scène.</em></p>
+
+</div>
+
+<br>
+
+<h2 class="PostTitle2">Annexe I : Auto
+exposition</h2>
+
+<p>On a vu au chapitre précédent comment
+faire une exposition
+photographique. Le problème c'est que
+la valeur de l'exposure est choisie à la main et
+hardcodée. Ce n'est
+pas très flexible donc on va
+plutot introduire une fonction d'exposition automatique.
+Le résultat n'est pas parfait mais il peut faire illusion
+pour un
+temps. Je me contente de donner
+le code. </p>
+
+<div class="code">float AutoExposure(scene
+&amp;myScene)<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+#define ACCUMULATION_SIZE 256<br>
+
+&nbsp;&nbsp;&nbsp;
+float exposure = -1.0f;<br>
+
+&nbsp;&nbsp;&nbsp; float
+accufacteur = float(max(myScene.sizex, myScene.sizey));<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+accufacteur = accufacteur / ACCUMULATION_SIZE;<br>
+
+&nbsp;&nbsp;&nbsp;
+color mediumPoint = {0.0f, 0.0f, 0.0f};<br>
+
+&nbsp;&nbsp;&nbsp;
+const float mediumPointWeight = 1.0f /
+(ACCUMULATION_SIZE*ACCUMULATION_SIZE);<br>
+
+&nbsp;&nbsp;&nbsp;
+for (int y = 0; y &lt; ACCUMULATION_SIZE; ++y) {<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; for (int x = 0 ; x &lt;
+ACCUMULATION_SIZE; ++x) {<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ray
+viewRay = { {float(x) * accufacteur, <br>
+
+&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;float(y) * accufacteur,
+-10000.0f}, <br>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; { 0.0f, 0.0f, 1.0f}};<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; color
+currentColor = addRay (viewRay, myScene);<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+mediumPoint = mediumPoint +
+mediumPointWeight * (currentColor * currentColor);<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp;
+}<br>
+
+&nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp;
+// Code d'autoexposition, on place le carré moyen
+à une valeur de gris
+intermédiaire<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+float mediumLuminance = sqrtf(0.2126f * mediumPoint.red <br>
+
+&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; + 0.715160f *
+mediumPoint.green <br>
+
+&nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; + 0.072169f * mediumPoint.blue);<br>
+
+&nbsp;&nbsp;&nbsp;
+if (mediumLuminance &gt; 0.001f)<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; exposure = logf(0.6f) / mediumLuminance;<br>
+
+&nbsp;&nbsp;&nbsp;
+}<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; return exposure;<br>
+
+}<br>
+
+<br>
+
+</div>
+
+<br>
+
+<h2 class="PostTitle2">Annexe II : Correction de textures
+en
+lecture</h2>
+
+<p>Une texture comme notre cubic environment map est une source
+de lumière
+comme une autre
+est doit être controlée finement.
+Premièrement le stockage de notre
+texture se fait généralement après
+exposition (s'il s'agit d'une image
+8 bits par canaux à précision fixe) et dans un
+espace
+sRGB (adapté à l'édition sur les
+écrans de PC et privilégiant les
+détails dans les faibles intensités).
+À l'inverse tous nos calculs d'éclairage se font
+dans l'espace linéaire
+des intensités.
+Tenir compte de ces éléments est primordial dans
+notre production
+d'images. </p>
+
+<p>Chaque échantillon lu dans notre cubemap est donc
+corrigé de la manière
+suivante : </p>
+
+<div class="code">&nbsp;&nbsp;&nbsp; if
+(cm.bsRGB)<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// On s'assure que les données sont ramenées dans
+un espace<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// de représentation linéaire au
+préalable<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor.blue&nbsp;&nbsp; = powf(outputColor.blue, 2.2f);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor.red&nbsp;&nbsp;&nbsp; = powf(outputColor.red,
+2.2f);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor.green&nbsp; = powf(outputColor.green, 2.2f);<br>
+
+&nbsp;&nbsp;&nbsp;
+}<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; if (cm.bExposed)<br>
+
+&nbsp;&nbsp;&nbsp;
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Les images LDR ont déjà
+été soumis à la fonction d'exposition<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// on les ramène à un espace similaire
+à l'espace de départ.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor.blue&nbsp; = -logf(1.001f - outputColor.blue);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor.red&nbsp;&nbsp; = -logf(1.001f - outputColor.red);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+outputColor.green = -logf(1.001f - outputColor.green);<br>
+
+&nbsp;&nbsp;&nbsp;
+}<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;
+outputColor.blue&nbsp; /= cm.exposure;<br>
+
+&nbsp;&nbsp;&nbsp;
+outputColor.red&nbsp;&nbsp; /= cm.exposure;<br>
+
+&nbsp;&nbsp;&nbsp;
+outputColor.green /= cm.exposure;<br>
+
+<br>
+
+</div>
+
+<br>
+
+<p>Comme
+vous pouvez le voir cette conversion est l'opération
+inverse de ce qui se passe
+à l'écriture de notre fichier scène ce
+qui, me semble-t-il, est assez
+logique. </p>
+
+<p>Voici le résultat du programme avec les
+notions
+abordées dans cette
+page :</p>
+
+<p style="text-align: center;"><img style="width: 640px; height: 480px;" alt="" src="page3_fichiers/page3_summary.png"></p>
+
+<p>Téléchargement
+du code source ici : <a href="http://www.massal.net/article/raytrace/raytrace_page3.zip" rel="nofollow">raytrace_page3.zip</a>
+Vous n'avez pas besoin de librairie particulière pour le
+compiler et le
+faire tourner, seulement un compilateur C++ livré avec la
+standard C++
+library. Testé avec le compilateur de GCC 3.2 et visual C++
+.net 2003.
+</p>
+
+<p>Vous aurez aussi besoin des fichiers textures: <a href="http://www.massal.net/article/raytrace/textures.zip" rel="nofollow">textures.zip</a> qui contient les
+fichiers
+associés à notre texture cubique par
+défaut utilisée dans nos images.
+</p>
+
+<br>
+
+<p style="text-align: center;">Direction
+page 4 : <a href="http://www.massal.net/article/raytrace/page4.html">"Flou, Fresnel et Blobs"</a>.</p>
+
+<hr style="width: 100%; height: 2px;">
+<h2 class="PostTitle2">Quick Navigation
+:</h2>
+
+<p>page
+1 : <a href="http://www.massal.net/article/raytrace/page1.html">"Premiers
+pas"</a>.<br>
+
+page 2 : <a href="http://www.massal.net/article/raytrace/page2.html">"Matériaux
+spéculaires et post processing"</a>.<br>
+
+page
+3 : <a href="http://www.massal.net/article/raytrace/page3.html">"Textures"</a>.<br>
+
+page
+4 : <a href="http://www.massal.net/article/raytrace/page4.html">"Flou Fresnel et Blobs"</a>.<br>
+
+page
+5 : <a href="http://www.massal.net/article/raytrace/page5.html">"HDR loi de beer et aberration
+chromatique"</a>.<br>
+
+page 6 : <a href="http://www.massal.net/article/raytrace/page6.html">"Photon
+mapping"</a>.<br>
+
+</p>
+
+<p style="text-align: left;">Plus
+d'articles et commentaires : <a href="http://journal.massal.net/">Retour
+au journal</a>.</p>
+
+</div>
+
+</div>
+
+<p style="text-align: center;"><em>Copyright
+© Grégory
+Massal 1976-2005</em> </p>
+<p style="text-align: center;"><small>Partner websites : <a href="http://www.massal.net/">LEGREG</a> 
+  | <a href="http://www.codermind.com/">GRAPHICS</a> 
+  | <a href="http://www.codermind.fr/">GRAPHISME</a> 
+  | <a href="http://photos.massal.net/">PHOTOGRAPHY</a>
+  | <a href="http://logon.codermind.com/">OUT OF MY MIND</a>
+  | <a href="http://sabine.massal.net/">ANIMATION MENTOR</a>
+  | <a href="http://www.austin-green-home.com/">GREEN LIVING</a>
+  | <a href="http://www.codermind.com/articles/Voxel-terrain-engine-building-the-terrain.html">VOXEL</a> 
+  | <a href="http://www.codermind.com/articles/Raytracer-in-C++-Introduction-What-is-ray-tracing.html">RAY TRACING</a> 
+  | <a href="http://www.coderdeals.com/">DEALS</a>
+</small>
+</p>
+
+
+
+</body></html>
